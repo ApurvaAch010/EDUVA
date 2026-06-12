@@ -1,0 +1,106 @@
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 2px 2px 5px 0px rgba(40, 119, 63, 0.959);
+}
+
+.navigation-links {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.navbar-items {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: #000000;
+}
+
+a:hover{
+    text-decoration: 1px solid green underline;
+    cursor: pointer;
+    transition: right 0.4s ease;
+}
+
+button {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    width: 80px;
+    height: 30px;
+    cursor: pointer;
+    margin-right: 5px;
+    transition: all 0.3s ease-in-out;
+    background-color: #a7f07e;
+}
+
+button:hover {
+    background-color: green;
+    color: white;
+}
+
+img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.auth-buttons {
+
+    width: 200px;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.hamburger {
+    display: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+.close-icon{
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+
+    .navigation-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 250px;
+        height: 100vh;
+        background: white;
+        transition: right 0.3s ease;
+    }
+
+    .navigation-links.active {
+        right: 0;
+    }
+
+    .navbar-items {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 80px;
+    }
+
+    .close-icon {
+        display: block;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        font-size: 1.5rem;
+    }
+}
