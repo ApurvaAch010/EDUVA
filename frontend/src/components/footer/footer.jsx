@@ -9,8 +9,7 @@ export const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-
-        {/* brand */}
+        
         <div className="footer-brand">
           <img src={logo} alt="logo" className="footer-logo" />
           <p>Your one-stop shop for all school supplies — uniforms, stationery, books and more.</p>
@@ -30,7 +29,6 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* quick links */}
         <div className="footer-links">
           <h4>Quick Links</h4>
           <ul>

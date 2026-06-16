@@ -5,7 +5,7 @@ import dbPool from "../../config/db.config.js";
 export const generateActiveToken = (user) => {
   return jwt.sign(
     { id: user.id || user.userId, email: user.email, role: user.role || "user" },
-    process.env.JWT_ACTIVE_SECRET ,
+    process.env.JWT_ACTIVE_SECRET,
     { expiresIn: process.env.JWT_ACTIVE_EXPIRES_IN }
   );
 };
@@ -21,15 +21,19 @@ export const generateRefreshToken = (user) => {
 export const registerUser = async (userData) => {
   const { username, email, password, organization, profilePic, role } = userData;
   const userRole = role || "user";
-  const saltRounds = 10;
-  const passwordHash = await bcrypt.hash(password, saltRounds);
+ let passwordHash = null;
+
+  if (userData.password) {
+    const salt = await bcrypt.genSalt(10);
+    passwordHash = await bcrypt.hash(userData.password, salt);
+  }
   const sql = `
     INSERT INTO users (username, email, password, organization, profile_pic, role, created_at) 
     VALUES (?, ?, ?, ?, ?, ?, NOW())
   `;
   const values = [username, email, passwordHash, organization, profilePic || null, userRole];
   try {
-   
+
     const [result] = await dbPool.execute(sql, values);
     return {
       success: true,
@@ -38,7 +42,7 @@ export const registerUser = async (userData) => {
     };
   } catch (error) {
     console.warn("Database operation failed: ", error.message);
-    
+
     // If the table doesn't exist, simulate a successful operation as requested by the user
     if (error.code === "ER_NO_SUCH_TABLE" || error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
       console.log("Simulating registration success because database or table is not ready.");
@@ -56,7 +60,7 @@ export const registerUser = async (userData) => {
         }
       };
     }
-    
+
     throw error;
   }
 };
@@ -69,6 +73,11 @@ export const loginUser = async (email, password) => {
     }
 
     const user = users[0];
+
+    if (!user.password) {
+      throw new Error("This account was created with Google. Please log in with Google.");
+    }
+
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       throw new Error("Invalid email or password");
@@ -81,7 +90,7 @@ export const loginUser = async (email, password) => {
       "UPDATE users SET active_tokens = ?, refresh_tokens = ? WHERE id = ?",
       [activeToken, refreshToken, user.id]
     );
-   
+
     return {
       success: true,
       activeToken,
@@ -127,8 +136,48 @@ export const loginUser = async (email, password) => {
   }
 };
 
-export const dashboardService=async(userId)=>{
-  try{
+export const findOrCreateGoogleUser = async (email, firstName, lastName, profilePic) => {
+  const [users] = await dbPool.execute("SELECT * FROM users WHERE email = ?", [email]);
+  let user;
+
+  if (users.length === 0) {
+    const newUser = {
+      username: `${firstName} ${lastName}`,
+      email,
+      profilePic,
+      organization: "Google",
+      role: "user"
+    };
+    const result = await registerUser(newUser);
+    user = { ...result.user, id: result.userId || result.user.id };
+  } else {
+    user = users[0];
+  }
+
+  const activeToken = generateActiveToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  await dbPool.execute(
+    "UPDATE users SET active_tokens = ?, refresh_tokens = ? WHERE id = ?",
+    [activeToken, refreshToken, user.id]
+  );
+  return {
+    success: true,
+    activeToken,
+    refreshToken,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      organization: user.organization,
+      role: user.role,
+      profilePic: user.profile_pic
+    }
+  };
+}
+
+export const dashboardService = async (userId) => {
+  try {
     const [users] = await dbPool.execute("SELECT * FROM users WHERE id = ?", [userId]);
     if (users.length === 0) {
       throw new Error("Invalid user id");
@@ -146,7 +195,7 @@ export const dashboardService=async(userId)=>{
       }
     };
   }
-  catch(err){
+  catch (err) {
     throw err;
   }
 }
@@ -158,7 +207,7 @@ export const forgetPasswordService = async (email) => {
   }
 
   const otp = String(Math.floor(10000 + Math.random() * 90000));
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   await dbPool.execute(
     "UPDATE users SET otp = ?, otp_expires_at = ? WHERE email = ?",
@@ -207,7 +256,9 @@ export const revokeRefreshToken = async (userId) => {
       "UPDATE users SET active_tokens = NULL, refresh_tokens = NULL WHERE id = ?",
       [userId]
     );
-   
+
+    
+
     return true;
   } catch (error) {
     if (

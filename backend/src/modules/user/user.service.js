@@ -42,7 +42,8 @@ export const findUserByIdService = async (userId) => {
                 username: user.username,
                 email: user.email,
                 organization: user.organization,
-                role: user.role
+                role: user.role,
+                profile_pic: user.profile_pic
             }
         };
     }

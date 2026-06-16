@@ -1,16 +1,84 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { MainLayout } from "../layouts/MainLayout"
 import { HomePage } from "../pages/homepage/homepage"
+import { AuthPage } from "../pages/authentication/authpage"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import { AuthLayout } from "../layouts/AuthLayout"
+import { ForgetPass } from "../pages/authentication/forgetpass.page"
+import { AuthProvider } from "../components/authprovider/AuthProvider"
+import { useSelector } from "react-redux"
+import { AdminLayout } from "../layouts/AdminLayout"
+
+const ErrorComponent = () => {
+    return (
+        <>
+            <div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20 }}>
+                <h1 style={{ color: "red", fontSize: "5rem", fontFamily: "sans-serif" }}>404</h1>
+                <p style={{ fontSize: "2rem", fontFamily: "sans-serif" }}>You have encountered an error please try again.</p>
+            </div>
+        </>
+    )
+}
+
+const GuestRoute = ({ children }) => {
+    const { isAuthenticated, loading } = useSelector((state) => state.auth);
+
+    if (loading) return null; // wait for /auth/me 
+
+    // if already logged in go to home
+    if (isAuthenticated) return <Navigate to="/" replace />;
+
+    return children;
+};
+
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+    const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
+
+    if (loading) return null; // wait for /auth/me 
+
+    // not logged in
+    if (!isAuthenticated) return <Navigate to="/auth" />;
+
+    // wrong role
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+        return <Navigate to="/" />;
+    }
+
+    return children;
+};
 
 
 export const RouterComponent = () => {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route element={<MainLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                </Route>
-            </Routes>
+            <ToastContainer />
+            <AuthProvider>
+                <Routes>
+                    <Route element={<MainLayout />}>
+                        <Route path="/" element={<HomePage />} />
+                    </Route>
+
+                    <Route element={<AuthLayout />}>
+                        <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/auth/forget-password" element={<ForgetPass />} />
+                    </Route>
+                    <Route path="*" element={<ErrorComponent />} />
+
+
+                    <Route
+                        path="/admin"
+                        element={
+                            <ProtectedRoute allowedRoles={["admin", "mod"]}>
+                                <AdminLayout />
+                            </ProtectedRoute>
+                        }
+
+                    ></Route>
+
+                </Routes>
+            </AuthProvider>
         </BrowserRouter>
     )
 }

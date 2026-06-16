@@ -62,7 +62,29 @@ export const findUserById = async (req, res) => {
 }
 
 export const getMe = async (req, res) => {
-
+  try {
+    const result = await findUserByIdService(req.user.id);
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+        error: result.message
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "User found",
+      data: result
+    });
+  }
+  catch (err) {
+    console.error("Error in getMe controller:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err.message
+    });
+  }
 }
 
 

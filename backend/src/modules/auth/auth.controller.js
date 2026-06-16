@@ -39,11 +39,20 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const result = await loginUser(email, password);
+   
+     res.cookie("token", result.activeToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       success: true,
       message: result.message || "Login successful",
-      data: result
+      data: result.user,
+      activeToken: result.activeToken,  
+      refreshToken: result.refreshToken
     });
   } catch (error) {
     console.error("Error in login controller:", error);
@@ -157,6 +166,12 @@ export const logout = async (req, res) => {
         message: "Unauthorized"
       });
     }
+    //clearing the cookie
+       res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
 
     const result = await revokeRefreshToken(req.user.id);
 

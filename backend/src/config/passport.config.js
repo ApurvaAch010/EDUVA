@@ -11,8 +11,10 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const user = await findOrCreateGoogleUser(profile);
-        return done(null, user);
+        
+        const result = await findOrCreateGoogleUser(profile.emails[0].value, profile.name.givenName, profile.name.familyName, profile.photos[0].value);
+        
+        return done(null, result);
       } catch (error) {
         return done(error, null);
       }

@@ -12,29 +12,27 @@ export const googleLogin = passport.authenticate("google", {
 export const googleCallback = [
   passport.authenticate("google", {
     session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_auth_failed`
+    failureRedirect: `${process.env.FRONTEND_URL}/*`
   }),
   async (req, res) => {
     try {
-      const user = req.user;
+      const { activeToken, refreshToken, user } = req.user;
 
-      const activeToken = generateActiveToken(user);
-      const refreshToken = generateRefreshToken(user);
-
-      // Save tokens to users table (same as regular login)
-      await dbPool.execute(
-        "UPDATE users SET active_tokens = ?, refresh_tokens = ? WHERE id = ?",
-        [activeToken, refreshToken, user.id]
-      );
+      res.cookie("token", activeToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
       // Redirect to frontend with tokens
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(
-        `${frontendUrl}/auth/callback?activeToken=${activeToken}&refreshToken=${refreshToken}`
+        `${frontendUrl}`
       );
     } catch (error) {
       console.error("Error in Google callback controller:", error);
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
       return res.redirect(`${frontendUrl}/login?error=server_error`);
     }
   }
