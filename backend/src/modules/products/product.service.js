@@ -121,15 +121,15 @@ export const updateProductByService = async (data, newImagePath, productId) => {
             : existing.slug;
 
         const updated = {
-            name: data.name ?? existing.name,
+            name: data.name !== undefined ? data.name : existing.name,
             slug,
-            description: data.description ?? existing.description,
-            image: newImagePath ?? existing.image,
-            price: data.price ?? existing.price,
-            discount_price: data.discount_price ?? existing.discount_price,
-            stock: data.stock ?? existing.stock,
-            category_id: data.category_id ?? existing.category_id,
-            is_active: data.is_active ?? existing.is_active,
+            description: data.description !== undefined ? data.description : existing.description,
+            image: newImagePath !== null ? newImagePath : existing.image,
+            price: data.price !== undefined ? data.price : existing.price,
+            discount_price: data.discount_price !== undefined ? data.discount_price : existing.discount_price,
+            stock: data.stock !== undefined ? data.stock : existing.stock,
+            category_id: data.category_id !== undefined ? data.category_id : existing.category_id,
+            is_active: data.is_active !== undefined ? data.is_active : existing.is_active,
         };
 
         await dbPool.execute(
@@ -156,7 +156,6 @@ export const updateProductByService = async (data, newImagePath, productId) => {
     }
 };
 
-//softdelete
 export const deleteProductByService = async (productId) => {
     try {
         const existing = await findProductById(productId);

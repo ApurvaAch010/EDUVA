@@ -3,7 +3,7 @@ import { addBannerService, getAllBannersService, updateBannerService, deleteBann
 
 export const addBanner = async (req, res) => {
     try {
-        const { title, isActive } = req.body;
+        const { title, isActive,description } = req.body;
         const userId = req.user.id;
 
         if (!req.file) {
@@ -14,7 +14,7 @@ export const addBanner = async (req, res) => {
         }
 
         const result = await addBannerService(
-            title, isActive, req.file.path, userId
+            title, isActive,description, req.file.path, userId
         );
 
         return res.status(201).json({
@@ -31,19 +31,23 @@ export const addBanner = async (req, res) => {
 export const updateBanner = async (req, res) => {
     try {
         const { id } = req.params;
-        const {title,isActive}=req.body;
+        const {title,isActive,description}=req.body;
+
         const banner = await findBannerById(id);
 
         const updatedTitle = title ?? banner.title;
         const updatedIsActive = isActive ?? banner.is_active;
         const updatedImage = req.file?.path ?? banner.image_path;
+        const updatedDescription = description ?? banner.description;
 
       const result=await updateBannerService(
             id,
             updatedTitle,
             updatedIsActive,
-            updatedImage
+            updatedImage,
+            updatedDescription
         );
+        
 
         return res.status(200).json({
             success: true,

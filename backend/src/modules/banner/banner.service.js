@@ -1,16 +1,18 @@
 import dbPool from "../../config/db.config.js";
 import fs from "fs";
 
-export const addBannerService = async (title, isActive, imagePath, userId) => {
+export const addBannerService = async (title, isActive, description, imagePath, userId) => {
     try {
+       isActive=isActive?1:0;
         const result = await dbPool.execute(
-            "INSERT INTO banners (title, is_active, image_path, created_by) VALUES (?, ?, ?, ?)",
-            [title, isActive ?? true, imagePath, userId]
+            "INSERT INTO banners (title, is_active, description, image_path, created_by) VALUES (?, ?, ?, ?,?)",
+            [title, isActive, description, imagePath, userId]
         );
 
         return {
             id: result.insertId,
             title,
+            description,
             isActive: isActive ?? true,
             image: imagePath,
         };
@@ -22,7 +24,7 @@ export const addBannerService = async (title, isActive, imagePath, userId) => {
 export const getAllBannersService = async () => {
     try {
         const [banners] = await dbPool.query(
-            "SELECT banner_id,title,is_active,image_path FROM banners"
+            "SELECT banner_id,title,is_active,image_path,description FROM banners"
         );
         return banners;
     } catch (err) {
@@ -30,15 +32,16 @@ export const getAllBannersService = async () => {
     }
 };
 
-export const updateBannerService = async (bannerId, title, isActive, newImage) => {
+export const updateBannerService = async (bannerId, title, isActive, newImage,description) => {
     try {
+       
         const [existing] = await dbPool.query(
             "SELECT * FROM banners WHERE banner_id = ?",
             [bannerId]
         );
-        console.log("isActive",isActive)
+
+       
         if (!existing) throw new Error("Banner not found");
-        console.log("existing banner",existing[0])
         // delete old image 
         if (newImage && existing.image_path) {
             fs.unlink(existing.image_path, () => { });
@@ -47,13 +50,14 @@ export const updateBannerService = async (bannerId, title, isActive, newImage) =
         const updated = {
             title: title ?? existing.title,
             isActive: isActive ?? existing.is_active,
+            description:description??existing.description,
             imagePath: newImage ?? existing.image_path,
         };
-        console.log(updated)
-
+        
+      
         await dbPool.execute(
-            "UPDATE banners SET title=?, is_active=?, image_path=? WHERE banner_id=?",
-            [updated.title, updated.isActive, updated.imagePath, bannerId]
+            "UPDATE banners SET title=?, is_active=?,description=?, image_path=? WHERE banner_id=?",
+            [updated.title, updated.isActive, updated.description, updated.imagePath, bannerId]
         );
 
         return { id: bannerId, ...updated };
@@ -107,7 +111,7 @@ export const toggleBannerService = async (bannerId) => {
         );
         if (!banner) throw new Error("Banner not found");
 
-        const newStatus = !banner.is_active;
+        const newStatus = !banner[0].is_active;
         await dbPool.execute(
             "UPDATE banners SET is_active = ? WHERE banner_id = ?",
             [newStatus, bannerId]

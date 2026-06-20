@@ -9,6 +9,12 @@ import { ForgetPass } from "../pages/authentication/forgetpass.page"
 import { AuthProvider } from "../components/authprovider/AuthProvider"
 import { useSelector } from "react-redux"
 import { AdminLayout } from "../layouts/AdminLayout"
+import { DashboardPage } from "../pages/Admin/DashboardPage"
+import { ProductsPage } from "../pages/Admin/products/ProductsPage"
+import { CategoriesPage } from "../pages/Admin/categories/CategoriesPage"
+import { BannersPage } from "../pages/Admin/bannerPage/BannerPage"
+import { UsersPage } from "../pages/Admin/User/Userspage"
+import { OrdersAdminPage } from "../pages/Admin/orders/OrderAdminPage"
 
 const ErrorComponent = () => {
     return (
@@ -66,16 +72,21 @@ export const RouterComponent = () => {
                     </Route>
                     <Route path="*" element={<ErrorComponent />} />
 
-
+z
                     <Route
                         path="/admin"
                         element={
                             <ProtectedRoute allowedRoles={["admin", "mod"]}>
                                 <AdminLayout />
                             </ProtectedRoute>
-                        }
-
-                    ></Route>
+                        }>
+                            <Route index element={<DashboardPage />} />
+                            <Route path="products" element={<ProductsPage />} />
+                            <Route path="categories" element={<CategoriesPage />} />
+                            <Route path="banners" element={<BannersPage />} />
+                            <Route path="users" element={<UsersPage />} />
+                            <Route path="orders" element={<OrdersAdminPage/>}/>
+                        </Route>
 
                 </Routes>
             </AuthProvider>

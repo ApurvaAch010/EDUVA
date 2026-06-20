@@ -46,7 +46,7 @@ export const getAllCategoriesService = async (limit, filter, page) => {
 
 export const getCategoryByIdService=async(id)=>{
     try{
-        const [result]=await dbPool.query("SELECT * FROM categories WHERE id=?",[id])
+        const [result]=await dbPool.query("SELECT * FROM categories WHERE cat_id=?",[id])
         return result
     }
     catch(error){
@@ -56,7 +56,7 @@ export const getCategoryByIdService=async(id)=>{
 
 export const updateCategoryService=async(id,name)=>{
     try{
-        const [result]=await dbPool.query("UPDATE categories SET name=? WHERE id=?",[name,id])
+        const [result]=await dbPool.query("UPDATE categories SET name=? WHERE cat_id=?",[name,id])
         return result
     }
     catch(error){
@@ -66,7 +66,7 @@ export const updateCategoryService=async(id,name)=>{
 
 export const deleteCategoryService=async(id)=>{
     try{
-        const [result]=await dbPool.query("DELETE FROM categories WHERE id=?",[id])
+        const [result]=await dbPool.query("DELETE FROM categories WHERE cat_id=?",[id])
         return result
     }
     catch(error){

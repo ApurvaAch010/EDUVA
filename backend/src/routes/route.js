@@ -12,11 +12,11 @@ const mainRouter = express.Router();
 
 mainRouter.use("/auth", authRouter);
 mainRouter.use("/user", userRouter);
-mainRouter.use("/banner",bannerRouter);
+mainRouter.use("/banners",bannerRouter);
 mainRouter.use("/categories",categoryRouter);
 mainRouter.use("/products",productRouter);
 mainRouter.use("/cart",cartRouter);
-mainRouter.use("/order",orderRouter);
+mainRouter.use("/orders",orderRouter);
 
 
 export default mainRouter;

@@ -1,4 +1,4 @@
-import { dashboardService, findUserByIdService, getAllUsersService, updateUserByIdService } from "./user.service.js";
+import { dashboardService, findUserByIdService, getAllUsersService, updateUserByIdService, getAdminStatsService } from "./user.service.js";
 import fs from "fs";
 
 export const dashboard = async (req, res) => {
@@ -152,6 +152,19 @@ export const getAllUsers = async (req, res) => {
       success: true,
       message: "Users fetched successfully",
       ...result,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getAdminStats = async (req, res) => {
+  try {
+    const result = await getAdminStatsService();
+    return res.status(200).json({
+      success: true,
+      message: "Admin statistics fetched successfully",
+      data: result,
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

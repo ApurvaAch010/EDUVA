@@ -29,7 +29,9 @@ export const AuthProvider = ({ children }) => {
 
   if (loading) {
     return (
-      <Spinner/>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", width: "100vw", backgroundColor: "#f9fafb" }}>
+        <Spinner size={40} color="#3b82f6" />
+      </div>
     );
   }
 

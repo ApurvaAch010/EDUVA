@@ -83,7 +83,7 @@ export const Navbar = () => {
                 <hr className="profile-dropdown-divider" />
                 <button
                   className="profile-dropdown-item"
-                  onClick={() => { navigate("/profile"); setDropdownOpen(false); }}
+                  onClick={() => { navigate(`${user.role==="admin" ? "/admin":"/profile"}`); setDropdownOpen(false); }}
                 >
                   <FontAwesomeIcon icon={faUser} />
                   Profile

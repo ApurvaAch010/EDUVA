@@ -13,7 +13,15 @@ export const createProduct = async (req, res) => {
         const imagePath = req.file?.path ?? null;
         const userId = req.user.id;
 
-        const data = { name, description, price, discount_price, stock, category_id, is_active };
+        const data = { 
+            name, 
+            description: description === "" || description === "null" ? null : description, 
+            price, 
+            discount_price: discount_price === "" || discount_price === "null" ? null : discount_price, 
+            stock, 
+            category_id, 
+            is_active 
+        };
         const result = await createProductService(data, imagePath, userId);
 
         return res.status(201).json({
@@ -35,6 +43,9 @@ export const updateProduct = async (req, res) => {
         const { id } = req.params;
         const newImagePath = req.file?.path ?? null;
         const data = req.body;
+
+        if (data.description === "" || data.description === "null") data.description = null;
+        if (data.discount_price === "" || data.discount_price === "null") data.discount_price = null;
 
         const result = await updateProductByService(data, newImagePath, id);
 

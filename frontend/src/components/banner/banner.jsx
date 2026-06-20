@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import "./banner.css";
+import { getAllBannersApi } from "../../services/banner.service";
 
 export const Banner = () => {
   const [banners, setBanners] = useState([]);
@@ -10,9 +11,11 @@ export const Banner = () => {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        // const res = await fetch(`${import.meta.env.VITE_API_URL}/banners`);
-        // const data = await res.json();
-        // if (data.success) setBanners(data.data);
+        setLoading(true);
+        const res = await getAllBannersApi();
+        if (res?.success) {
+          setBanners(res.data.filter((b) => b.is_active === 1));
+        }
       } catch (err) {
         console.error("Failed to fetch banners:", err);
       } finally {
@@ -38,10 +41,6 @@ export const Banner = () => {
     goTo((current + 1) % banners.length);
   }, [current, banners.length, goTo]);
 
-  const prev = useCallback(() => {
-    goTo((current - 1 + banners.length) % banners.length);
-  }, [current, banners.length, goTo]);
-
   // autoslide every 4s
   useEffect(() => {
     if (banners.length <= 1) return;
@@ -57,48 +56,44 @@ export const Banner = () => {
 
   const banner = banners[current];
 
-  return (
-    <section className="banner">
-      <div
-        className={`banner-slide ${transitioning ? "banner-slide--out" : "banner-slide--in"}`}
-      >
-        <img
-          src={`${import.meta.env.VITE_API_URL}/${banner.image_path}`}
-          alt={banner.title}
-          className="banner-img"
-        />
-        <div className="banner-overlay" />
-        <div className="banner-content">
-          {banner.title && <h2 className="banner-title">{banner.title}</h2>}
-          {banner.link && (
-            <a href={banner.link} className="banner-cta">
-              Shop now
-            </a>
-          )}
-        </div>
+return (
+  <section className="banner">
+    <div className={`banner-slide ${transitioning ? "banner-slide--out" : "banner-slide--in"}`}>
+      
+      {/* The background image that takes up the entire banner frame */}
+      <img
+        src={`${import.meta.env.VITE_API_URL}/${banner.image_path}`}
+        alt={banner.title || "Banner display"}
+        className="banner-bg-img"
+      />
+      
+    
+      <div className="banner-green-overlay" />
+
+      {/* The text content positioned floating over the left side */}
+      <div className="banner-content-overlay">
+        {banner.title && <h2 className="banner-title">{banner.title}</h2>}
+        {banner.description && <p className="banner-description">{banner.description}</p>}
+        {banner.link && (
+          <a href={banner.link} className="banner-cta">
+            Shop Now
+          </a>
+        )}
       </div>
 
-      {banners.length > 1 && (
-        <>
-          <button className="banner-arrow banner-arrow--left" onClick={prev} aria-label="Previous">
-            &#8592;
-          </button>
-          <button className="banner-arrow banner-arrow--right" onClick={next} aria-label="Next">
-            &#8594;
-          </button>
-
-          <div className="banner-dots">
-            {banners.map((_, i) => (
-              <button
-                key={i}
-                className={`banner-dot ${i === current ? "banner-dot--active" : ""}`}
-                onClick={() => goTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </section>
-  );
+    </div>
+    {banners.length > 1 && (
+      <div className="banner-dots">
+        {banners.map((_, i) => (
+          <button
+            key={i}
+            className={`banner-dot ${i === current ? "banner-dot--active" : ""}`}
+            onClick={() => goTo(i)}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+    )}
+  </section>
+);
 };
