@@ -10,7 +10,7 @@ const authSlice = createSlice({
   reducers: {
     // action 1 — called after successful login or /auth/me
     setUser: (state, action) => {
-      state.user = action.payload; // payload = user object from backend
+      state.user = { ...state.user, ...action.payload };
       state.isAuthenticated = true;
       state.loading = false;
     },

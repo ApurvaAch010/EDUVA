@@ -1,6 +1,4 @@
 import passport from "../../config/passport.config.js";
-import { generateActiveToken, generateRefreshToken } from "./auth.service.js";
-import dbPool from "../../config/db.config.js";
 
 // GET /auth/google — initiate OAuth flow
 export const googleLogin = passport.authenticate("google", {

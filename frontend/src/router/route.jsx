@@ -15,6 +15,10 @@ import { CategoriesPage } from "../pages/Admin/categories/CategoriesPage"
 import { BannersPage } from "../pages/Admin/bannerPage/BannerPage"
 import { UsersPage } from "../pages/Admin/User/Userspage"
 import { OrdersAdminPage } from "../pages/Admin/orders/OrderAdminPage"
+import { UserDashboardPage } from "../pages/User/UserDashboardPage"
+import { UserLayout } from "../layouts/UserLayout"
+import { CartPage } from "../pages/Cart/CartPage"
+import { OrdersPage } from "../pages/Orders/OrderPage"
 
 const ErrorComponent = () => {
     return (
@@ -72,7 +76,7 @@ export const RouterComponent = () => {
                     </Route>
                     <Route path="*" element={<ErrorComponent />} />
 
-z
+                    zx
                     <Route
                         path="/admin"
                         element={
@@ -80,14 +84,24 @@ z
                                 <AdminLayout />
                             </ProtectedRoute>
                         }>
-                            <Route index element={<DashboardPage />} />
-                            <Route path="products" element={<ProductsPage />} />
-                            <Route path="categories" element={<CategoriesPage />} />
-                            <Route path="banners" element={<BannersPage />} />
-                            <Route path="users" element={<UsersPage />} />
-                            <Route path="orders" element={<OrdersAdminPage/>}/>
-                        </Route>
+                        <Route index element={<DashboardPage />} />
+                        <Route path="products" element={<ProductsPage />} />
+                        <Route path="categories" element={<CategoriesPage />} />
+                        <Route path="banners" element={<BannersPage />} />
+                        <Route path="users" element={<UsersPage />} />
+                        <Route path="orders" element={<OrdersAdminPage />} />
+                    </Route>
+                    <Route path="/user" element={
+                        <ProtectedRoute allowedRoles={["user", "admin", "mod"]}>
+                            <UserLayout />
+                        </ProtectedRoute>
+                    }>
+                        <Route index element={<UserDashboardPage />} />
+                        <Route path="cart" element={<CartPage />} />
+                        <Route path="orders" element={<OrdersPage />} />
 
+
+                    </Route>
                 </Routes>
             </AuthProvider>
         </BrowserRouter>

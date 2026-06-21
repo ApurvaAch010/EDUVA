@@ -64,7 +64,7 @@ export const updateUserByIdService = async (userId, data) => {
         if (users.length === 0) throw new Error("Invalid user id");
 
         const user = users[0];
-
+    
         if (data.email && data.email !== user.email) {
             const [checkEmail] = await dbPool.execute(
                 "SELECT id FROM users WHERE email = ?",
@@ -74,11 +74,9 @@ export const updateUserByIdService = async (userId, data) => {
         }
 
 
-        if (data.profilePic && user.profile_pic) {
-            fs.unlink(user.profile_pic, (err) => {
-                if (err) console.error("Failed to delete old profile pic:", err);
-            });
-        }
+       if (data.profilePic && user.profile_pic) {
+  deleteOldProfilePic(user.profile_pic);
+}
 
         const updated = {
             username: data.username ?? user.username,
@@ -94,7 +92,6 @@ export const updateUserByIdService = async (userId, data) => {
         );
 
         if (result.affectedRows === 0) throw new Error("Failed to update user");
-
         return { id: userId, ...updated };
     } catch (err) {
 
@@ -190,4 +187,13 @@ export const getAdminStatsService = async () => {
     } catch (err) {
         throw err;
     }
+};
+
+
+const deleteOldProfilePic = (oldPath) => {
+  if (!oldPath) return;
+  if (oldPath.startsWith("http")) return; // skip — it's a Google/external URL, not a local file
+  fs.unlink(oldPath, (err) => {
+    if (err) console.error("Failed to delete old profile pic:", err.message);
+  });
 };

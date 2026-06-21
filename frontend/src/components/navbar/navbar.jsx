@@ -52,9 +52,9 @@ export const Navbar = () => {
           <li><a href="#" onClick={() => setIsOpen(false)}>Home</a></li>
           <li><a href="#" onClick={() => setIsOpen(false)}>About</a></li>
           <li><a href="#" onClick={() => setIsOpen(false)}>Contact</a></li>
-          <li className="cart" onClick={() => setIsOpen(false)}>
+          {isAuthenticated && <li className="cart" onClick={() => setIsOpen(false)}>
             <FontAwesomeIcon icon={faShoppingCart} color="#000000" /><sup>0</sup>
-          </li>
+          </li>}
         </ul>
       </div>
 
@@ -83,7 +83,7 @@ export const Navbar = () => {
                 <hr className="profile-dropdown-divider" />
                 <button
                   className="profile-dropdown-item"
-                  onClick={() => { navigate(`${user.role==="admin" ? "/admin":"/profile"}`); setDropdownOpen(false); }}
+                  onClick={() => { navigate(`${user.role==="admin" ? "/admin":"/user"}`); setDropdownOpen(false); }}
                 >
                   <FontAwesomeIcon icon={faUser} />
                   Profile

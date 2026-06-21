@@ -95,7 +95,7 @@ export const AdminLayout = () => {
 
           <div
             className="profile-icon"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/user")}
           >
             {user?.profile_pic ? (
               <img
