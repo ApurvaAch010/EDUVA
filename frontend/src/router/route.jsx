@@ -10,7 +10,7 @@ import { AuthProvider } from "../components/authprovider/AuthProvider"
 import { useSelector } from "react-redux"
 import { AdminLayout } from "../layouts/AdminLayout"
 import { DashboardPage } from "../pages/Admin/DashboardPage"
-import { ProductsPage } from "../pages/Admin/products/ProductsPage"
+import { AdminProductsPage } from "../pages/Admin/products/ProductsPage"
 import { CategoriesPage } from "../pages/Admin/categories/CategoriesPage"
 import { BannersPage } from "../pages/Admin/bannerPage/BannerPage"
 import { UsersPage } from "../pages/Admin/User/Userspage"
@@ -19,6 +19,7 @@ import { UserDashboardPage } from "../pages/User/UserDashboardPage"
 import { UserLayout } from "../layouts/UserLayout"
 import { CartPage } from "../pages/Cart/CartPage"
 import { OrdersPage } from "../pages/Orders/OrderPage"
+import { ProductsPage } from "../pages/Products/ProductsPage"
 
 const ErrorComponent = () => {
     return (
@@ -68,6 +69,7 @@ export const RouterComponent = () => {
                 <Routes>
                     <Route element={<MainLayout />}>
                         <Route path="/" element={<HomePage />} />
+                        <Route path="/products" element={<ProductsPage />} />
                     </Route>
 
                     <Route element={<AuthLayout />}>
@@ -85,7 +87,7 @@ export const RouterComponent = () => {
                             </ProtectedRoute>
                         }>
                         <Route index element={<DashboardPage />} />
-                        <Route path="products" element={<ProductsPage />} />
+                        <Route path="products" element={<AdminProductsPage />} />
                         <Route path="categories" element={<CategoriesPage />} />
                         <Route path="banners" element={<BannersPage />} />
                         <Route path="users" element={<UsersPage />} />

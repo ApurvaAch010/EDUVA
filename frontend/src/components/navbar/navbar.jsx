@@ -9,8 +9,20 @@ import { clearUser } from "../../store/authSlice";
 import { logoutApi } from "../../services/auth.service";
 import { toast } from "react-toastify";
 
+
+const BASE_URL = import.meta.env.VITE_API_URL?.replace("/api", "") ?? "";
+
+const imgSrc = (path, updatedAt) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    const base = `${BASE_URL}/${path.replace(/^\//, "")}`;
+    return updatedAt ? `${base}?t=${new Date(updatedAt).getTime()}` : base;
+};
+
+
 export const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { items: cartItems } = useSelector((state) => state.cart || { items: [] });
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -35,7 +47,6 @@ export const Navbar = () => {
     setDropdownOpen(false);
     navigate("/");
   };
-
   return (
     <nav>
       <div className="logo">
@@ -49,11 +60,11 @@ export const Navbar = () => {
       <div className={`navigation-links ${isOpen ? "active" : ""}`}>
         <FontAwesomeIcon icon={faXmark} className="close-icon" onClick={() => setIsOpen(false)} />
         <ul className="navbar-items">
-          <li><a href="#" onClick={() => setIsOpen(false)}>Home</a></li>
+          <li><a href="/" onClick={() => setIsOpen(false)}>Home</a></li>
           <li><a href="#" onClick={() => setIsOpen(false)}>About</a></li>
           <li><a href="#" onClick={() => setIsOpen(false)}>Contact</a></li>
-          {isAuthenticated && <li className="cart" onClick={() => setIsOpen(false)}>
-            <FontAwesomeIcon icon={faShoppingCart} color="#000000" /><sup>0</sup>
+          {isAuthenticated && <li className="cart" onClick={() => { setIsOpen(false); navigate("/user/cart") }} >
+            <FontAwesomeIcon icon={faShoppingCart} color="#000000" /><sup>{cartItems.item_count}</sup>
           </li>}
         </ul>
       </div>
@@ -66,7 +77,17 @@ export const Navbar = () => {
               onClick={() => setDropdownOpen(prev => !prev)}
             >
               <div className="profile-avatar">
-                {user?.username?.charAt(0).toUpperCase()}
+                {imgSrc(user?.profile_pic) ? (
+                  <img
+                    src={imgSrc(user?.profile_pic, user?.updated_at)}
+                    alt="profile"
+                    className="ud-profile-img"
+                  />
+                ) : (
+                  <div className="ud-profile-avatar-fallback">
+                    <FontAwesomeIcon icon={faUserSecret} />
+                  </div>
+                )}
               </div>
               <FontAwesomeIcon
                 icon={faChevronDown}
@@ -83,7 +104,7 @@ export const Navbar = () => {
                 <hr className="profile-dropdown-divider" />
                 <button
                   className="profile-dropdown-item"
-                  onClick={() => { navigate(`${user.role==="admin" ? "/admin":"/user"}`); setDropdownOpen(false); }}
+                  onClick={() => { navigate(`${user.role === "admin" ? "/admin" : "/user"}`); setDropdownOpen(false); }}
                 >
                   <FontAwesomeIcon icon={faUser} />
                   Profile

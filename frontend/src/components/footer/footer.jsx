@@ -5,7 +5,24 @@ import { faFacebook, faInstagram, faTiktok, faTwitter } from "@fortawesome/free-
 import { faEnvelope, faPhone, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import "./footer.css";
 
+import { useEffect, useState } from "react";
+import { getAllCategories } from "../../services/categories.service";
+
 export const Footer = () => {
+  const [categories,setcategories]=useState([]);
+  const fetchcategories=async()=>{
+    try{
+      const res=await getAllCategories();
+
+      setcategories(res.data);
+    }catch(e){
+      console.log(e);
+    }
+  }
+  useEffect(() => {
+    fetchcategories();
+  }, []);
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -43,11 +60,18 @@ export const Footer = () => {
         <div className="footer-links">
           <h4>Categories</h4>
           <ul>
-            <li><Link to="/products?category=uniforms">Uniforms</Link></li>
-            <li><Link to="/products?category=stationery">Stationery</Link></li>
-            <li><Link to="/products?category=books">Books</Link></li>
-            <li><Link to="/products?category=sports">Sports</Link></li>
-            <li><Link to="/products?category=art">Art Supplies</Link></li>
+            {
+              categories.length>0 ? (
+                categories?.map((c)=>{
+                  return (
+                    <li key={c.cat_id}><Link to="#">{c.name}</Link></li>
+                  )
+                })
+              ):
+              (
+                <div>No categories Loaded...</div>
+              )
+            }
           </ul>
         </div>
 
@@ -72,7 +96,6 @@ export const Footer = () => {
 
       </div>
 
-      {/* bottom bar */}
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} Eduva. All rights reserved.</p>
       </div>

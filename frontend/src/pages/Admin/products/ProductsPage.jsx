@@ -29,7 +29,7 @@ const imgSrc = (path) => {
 
 const currency = (n) => `Rs. ${Number(n).toLocaleString("en-IN")}`;
 
-export const ProductsPage = () => {
+export const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -16,7 +16,12 @@ nav {
     gap: 40px;
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0;   
+}
+
+.navbar-items > li:hover{
+      transform: translateY(-5px);
+      transition: all 0.2s ease-in-out;
 }
 
 a {
@@ -25,9 +30,9 @@ a {
 }
 
 a:hover {
-    text-decoration: 1px solid green underline;
+    /* text-decoration: 1px solid green underline; */
     cursor: pointer;
-    transition: right 0.4s ease;
+    /* transition: right 0.4s ease; */
 }
 
 button {
@@ -47,7 +52,7 @@ button:hover {
     color: white;
 }
 
-img {
+.logo img {
     width: 80px;
     height: 80px;
     object-fit: cover;
@@ -81,7 +86,7 @@ img {
 .profile-btn {
     display: flex;
     align-items: center;
-    width: 100px;
+    width: 80px;
     gap: 0.5rem;
     background: none;
     border: 1.5px solid #e0e0e0;
@@ -204,6 +209,26 @@ img {
     color: #d0342c;
 }
 
+.btn-login{
+    width: 140px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.cart{
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.cart:hover{
+    transform: translateY(-5px);
+}
+
+.cart svg{
+    font-size: 20px;
+}
+
+
 @media (max-width: 768px) {
     .hamburger {
         display: block;
@@ -216,6 +241,7 @@ img {
         width: 250px;
         height: 100vh;
         background: white;
+        z-index: 100;
         transition: right 0.3s ease;
     }
 
