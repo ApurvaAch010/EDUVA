@@ -49,29 +49,11 @@ export const Footer = () => {
         <div className="footer-links">
           <h4>Quick Links</h4>
           <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/products">Products</Link></li>
-            <li><Link to="/cart">Cart</Link></li>
-            <li><Link to="/orders">My Orders</Link></li>
-            <li><Link to="/profile">Profile</Link></li>
-          </ul>
-        </div>
-
-        <div className="footer-links">
-          <h4>Categories</h4>
-          <ul>
-            {
-              categories.length>0 ? (
-                categories?.map((c)=>{
-                  return (
-                    <li key={c.cat_id}><Link to="#">{c.name}</Link></li>
-                  )
-                })
-              ):
-              (
-                <div>No categories Loaded...</div>
-              )
-            }
+            <Link to="/"><li>Home</li></Link>
+            <Link to="/products"><li>Products</li></Link>
+            <Link to="/user/cart"><li>Cart</li></Link>
+            <Link to="/user/orders"><li>Orders</li></Link>
+           
           </ul>
         </div>
 

@@ -59,14 +59,14 @@
     gap: 0.6rem;
 }
 
-.footer-links ul li a {
+.footer-links ul li {
     color: #ccc;
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.2s;
 }
 
-.footer-links ul li a:hover {
+.footer-links ul li:hover {
     color: #fff;
 }
 

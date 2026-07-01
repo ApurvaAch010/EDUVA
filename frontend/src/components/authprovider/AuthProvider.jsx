@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
           dispatch(setUser(res.data.user));
           try {
             const cartRes = await getCartApi();
-            dispatch(setCart(cartRes.data || []));
+            dispatch(setCart(cartRes.data?.items || []));
           } catch (cartErr) {
             console.error("Failed to fetch cart", cartErr);
             dispatch(setCart([]));

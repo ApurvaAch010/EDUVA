@@ -21,6 +21,7 @@ export const ProductsPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
     const [categoryId, setCategoryId] = useState("");
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const limit = 12;
     
     const { isAuthenticated } = useSelector((state) => state.auth);
@@ -154,7 +155,55 @@ export const ProductsPage = () => {
                 </div>
             </div>
 
-            {loading ? (
+            {selectedProduct ? (
+                <div className="product-detail-view">
+                    <button className="back-btn" onClick={() => setSelectedProduct(null)}>
+                        <FontAwesomeIcon icon={faChevronLeft} /> Back to Products
+                    </button>
+                    <div className="product-detail-content">
+                        <div className="product-detail-left">
+                            <img
+                                src={`${import.meta.env.VITE_API_URL}/${selectedProduct.image}`}
+                                alt={selectedProduct.name}
+                                className="product-detail-image"
+                            />
+                        </div>
+                        <div className="product-detail-right">
+                            {selectedProduct.category_name && (
+                                <span className="product-detail-category">{selectedProduct.category_name}</span>
+                            )}
+                            <h1 className="product-detail-title">{selectedProduct.name}</h1>
+                            <p className="product-detail-desc">{selectedProduct.description}</p>
+                            
+                            <div className="product-detail-meta">
+                                <p className="product-detail-price">
+                                    {selectedProduct.discount_price > 0 ? (
+                                        <>
+                                            <span className="line-through">Rs.{selectedProduct.price}</span>
+                                            <span className="discounted-price">Rs.{selectedProduct.discount_price}</span>
+                                        </>
+                                    ) : (
+                                        <span>Rs.{selectedProduct.price}</span>
+                                    )}
+                                </p>
+                                <p className="product-detail-stock">
+                                    Stock: <span className={`stock-count ${selectedProduct.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                                        {selectedProduct.stock > 0 ? `${selectedProduct.stock} available` : 'Out of Stock'}
+                                    </span>
+                                </p>
+                            </div>
+                            
+                            <button
+                                className="add-to-cart-btn detail-add-btn"
+                                onClick={() => handleAddToCart(selectedProduct)}
+                                disabled={selectedProduct.stock <= 0}
+                            >
+                                <FontAwesomeIcon icon={faCartPlus} /> {selectedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : loading ? (
                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "300px", width: "100%" }}>
                     <Spinner size={40} color="#3b82f6" />
                 </div>
@@ -165,7 +214,12 @@ export const ProductsPage = () => {
             ) : (
                 <div className="products-grid">
                     {products.map((product) => (
-                        <div className="product-card" key={product.product_id}>
+                        <div 
+                            className="product-card" 
+                            key={product.product_id}
+                            onClick={() => setSelectedProduct(product)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <div className="product-image-container">
                                 <img
                                     src={`${import.meta.env.VITE_API_URL}/${product.image}`}
@@ -194,7 +248,10 @@ export const ProductsPage = () => {
 
                                 <button
                                     className="add-to-cart-btn"
-                                    onClick={() => handleAddToCart(product)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddToCart(product);
+                                    }}
                                 >
                                     <FontAwesomeIcon icon={faCartPlus} /> Add to Cart
                                 </button>

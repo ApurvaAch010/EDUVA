@@ -133,7 +133,6 @@ export const updateCartService = async (userId, itemId, quantity) => {
 export const removeItemCartService = async (userId, itemId) => {
   try {
     const cart = await getOrCreateCart(userId);
-    console.log("cart", cart)
     const [item] = await dbPool.query(
       "SELECT * FROM cart_items WHERE cart_items_id = ? AND cart_id = ?",
       [itemId, cart.cart_id]

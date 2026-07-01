@@ -57,6 +57,12 @@ button:hover {
     height: 80px;
     object-fit: cover;
     border-radius: 50%;
+    
+}
+.logo img:hover{
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(-5px);
 }
 
 .auth-buttons {

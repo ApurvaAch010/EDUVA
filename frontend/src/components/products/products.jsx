@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
+import { faCartPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { getAllProducts } from "../../services/products.service";
 import { addToCartApi } from "../../services/cart.service";
 import { addToCart } from "../../store/cartSlice";
@@ -13,6 +13,7 @@ import "./products.css";
 export const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -76,10 +77,64 @@ export const Products = () => {
         </Link>
       </div>
 
-      <div className="products-carousel-wrapper">
-        <div className="products-carousel">
-          {carouselProducts.map((product, index) => (
-            <div className="product-card" key={`${product.id}-${index}`}>
+      {selectedProduct ? (
+        <div className="product-detail-view" style={{ maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+          <button className="back-btn" onClick={() => setSelectedProduct(null)}>
+            <FontAwesomeIcon icon={faChevronLeft} /> Back to Products
+          </button>
+          <div className="product-detail-content">
+            <div className="product-detail-left">
+              <img
+                src={`${import.meta.env.VITE_API_URL}/${selectedProduct.image}`}
+                alt={selectedProduct.name}
+                className="product-detail-image"
+              />
+            </div>
+            <div className="product-detail-right">
+              {selectedProduct.category_name && (
+                <span className="product-detail-category">{selectedProduct.category_name}</span>
+              )}
+              <h1 className="product-detail-title">{selectedProduct.name}</h1>
+              <p className="product-detail-desc">{selectedProduct.description}</p>
+              
+              <div className="product-detail-meta">
+                <p className="product-detail-price">
+                  {selectedProduct.discount_price > 0 ? (
+                    <>
+                      <span className="line-through">Rs.{selectedProduct.price}</span>
+                      <span className="discounted-price">Rs.{selectedProduct.discount_price}</span>
+                    </>
+                  ) : (
+                    <span>Rs.{selectedProduct.price}</span>
+                  )}
+                </p>
+                <p className="product-detail-stock">
+                  Stock: <span className={`stock-count ${selectedProduct.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                    {selectedProduct.stock > 0 ? `${selectedProduct.stock} available` : 'Out of Stock'}
+                  </span>
+                </p>
+              </div>
+              
+              <button
+                className="add-to-cart-btn detail-add-btn"
+                onClick={() => handleAddToCart(selectedProduct)}
+                disabled={selectedProduct.stock <= 0}
+              >
+                <FontAwesomeIcon icon={faCartPlus} /> {selectedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="products-carousel-wrapper">
+          <div className="products-carousel">
+            {carouselProducts.map((product, index) => (
+              <div 
+                className="product-card" 
+                key={`${product.id}-${index}`}
+                onClick={() => setSelectedProduct(product)}
+                style={{ cursor: 'pointer' }}
+              >
               <div className="product-image-container">
                 <img
                   src={`${import.meta.env.VITE_API_URL}/${product.image}`}
@@ -107,7 +162,10 @@ export const Products = () => {
                 
                 <button
                   className="add-to-cart-btn"
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart(product);
+                  }}
                 >
                   <FontAwesomeIcon icon={faCartPlus} /> Add to Cart
                 </button>
@@ -116,6 +174,7 @@ export const Products = () => {
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 };

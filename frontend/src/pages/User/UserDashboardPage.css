@@ -28,7 +28,7 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
 }
 
-/* edit pen button */
+
 .update-pen {
   position: absolute;
   top: 1rem;
@@ -52,7 +52,7 @@
   color: #fff;
 }
 
-/* profile image */
+
 .profile {
   width: 110px;
   height: 110px;
@@ -79,7 +79,7 @@
   justify-content: center;
 }
 
-/* info fields */
+
 .profile-info {
   width: 100%;
   display: grid;
@@ -119,7 +119,6 @@
   opacity: 0.85;
 }
 
-/* ===== mobile ===== */
 @media (max-width: 640px) {
   .main-ud {
     padding: 1.5rem 1rem;

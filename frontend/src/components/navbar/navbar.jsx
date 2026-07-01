@@ -22,7 +22,8 @@ const imgSrc = (path, updatedAt) => {
 
 export const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const { items: cartItems } = useSelector((state) => state.cart || { items: [] });
+  const { items: cartItems = [] } = useSelector((state) => state.cart || { items: [] });
+  const cartItemCount = Array.isArray(cartItems) ? cartItems.length : 0;
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -49,7 +50,7 @@ export const Navbar = () => {
   };
   return (
     <nav>
-      <div className="logo">
+      <div className="logo" onClick={() => navigate("/")}>
         <img src={logo} alt="logo" />
       </div>
 
@@ -61,10 +62,11 @@ export const Navbar = () => {
         <FontAwesomeIcon icon={faXmark} className="close-icon" onClick={() => setIsOpen(false)} />
         <ul className="navbar-items">
           <li><a href="/" onClick={() => setIsOpen(false)}>Home</a></li>
+          <li><a href="/products" onClick={() => setIsOpen(false)}>Products</a></li>
           <li><a href="#" onClick={() => setIsOpen(false)}>About</a></li>
           <li><a href="#" onClick={() => setIsOpen(false)}>Contact</a></li>
           {isAuthenticated && <li className="cart" onClick={() => { setIsOpen(false); navigate("/user/cart") }} >
-            <FontAwesomeIcon icon={faShoppingCart} color="#000000" /><sup>{cartItems.item_count}</sup>
+            <FontAwesomeIcon icon={faShoppingCart} color="#000000" /><sup>{cartItemCount}</sup>
           </li>}
         </ul>
       </div>

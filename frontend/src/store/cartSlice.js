@@ -13,15 +13,15 @@ const cartSlice = createSlice({
     },
     addToCart: (state, action) => {
       const newItem = action.payload;
-      const existingItemIndex = state.items.items.findIndex(item => item.product_id === newItem.product_id);
+      const existingItemIndex = state.items.findIndex(item => item.product_id === newItem.product_id);
       if (existingItemIndex >= 0) {
-        state.items.items[existingItemIndex].quantity += (newItem.quantity || 1);
+        state.items[existingItemIndex].quantity = newItem.quantity;
       } else {
-        state.items.items.push(newItem);
+        state.items.push(newItem);
       }
     },
     removeFromCart: (state, action) => {
-      state.items = state.items.items.filter(item => item.id !== action.payload);
+      state.items = state.items.filter(item => item.id !== action.payload);
     },
     clearCart: (state) => {
       state.items = [];
