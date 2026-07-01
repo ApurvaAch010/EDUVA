@@ -40,7 +40,7 @@ export const getOrderByIdApi = async (orderId) => {
 
 export const cancelOrderApi = async (orderId) => {
   try {
-    const response = await api.put(`/orders/${orderId}/cancel`);
+    const response = await api.delete(`/orders/${orderId}/cancel`);
     return response.data;
   } catch (err) {
     throw err;

@@ -36,7 +36,7 @@ export const getOrderById = async (req, res) => {
 export const cancelOrder = async (req, res) => {
     try {
         const {orderId}=req.params
-        const {userId}=req.user
+        const userId=req.user.id
         const order=await cancelOrderByIdService(orderId,userId)
         return res.status(200).json({message:"Order cancelled successfully",order})
     } catch (error) {

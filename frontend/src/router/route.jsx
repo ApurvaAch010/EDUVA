@@ -20,6 +20,7 @@ import { UserLayout } from "../layouts/UserLayout"
 import { CartPage } from "../pages/Cart/CartPage"
 import { OrdersPage } from "../pages/Orders/OrderPage"
 import { ProductsPage } from "../pages/Products/ProductsPage"
+import { CheckoutPage } from "../pages/Checkout/CheckoutPage"
 
 const ErrorComponent = () => {
     return (
@@ -70,6 +71,11 @@ export const RouterComponent = () => {
                     <Route element={<MainLayout />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/products" element={<ProductsPage />} />
+                        <Route path="/checkout" element={
+                            <ProtectedRoute allowedRoles={["user", "admin", "mod"]}>
+                                <CheckoutPage />
+                            </ProtectedRoute>
+                        } />
                     </Route>
 
                     <Route element={<AuthLayout />}>
@@ -78,7 +84,6 @@ export const RouterComponent = () => {
                     </Route>
                     <Route path="*" element={<ErrorComponent />} />
 
-                    zx
                     <Route
                         path="/admin"
                         element={

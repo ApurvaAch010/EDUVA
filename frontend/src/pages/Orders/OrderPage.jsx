@@ -6,6 +6,7 @@ import { DeleteModal } from "../../components/modals/DeleteModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxOpen, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import "./OrderPage.css";
+import { toast } from "react-toastify";
 
 const BASE_URL = import.meta.env.VITE_API_URL?.replace("/api", "") ?? "";
 
@@ -39,7 +40,7 @@ export const OrdersPage = () => {
     setError(null);
     try {
       const data = await getMyOrdersApi();
-      setOrders(data.data ?? []);
+      setOrders(data.orders ?? []);
     } catch (err) {
       setError(err.response?.data?.message ?? "Failed to load orders.");
     } finally {
@@ -55,9 +56,10 @@ export const OrdersPage = () => {
     try {
       await cancelOrderApi(cancelTarget.order_id);
       setCancelTarget(null);
+      toast.success("Order cancelled successfully")
       fetchOrders();
     } catch (err) {
-      alert(err.response?.data?.message ?? "Could not cancel order.");
+      toast.error(err.response?.data?.message ?? "Could not cancel order.");
     } finally {
       setActionLoading(false);
     }

@@ -49,7 +49,7 @@ export const UserDashboardPage = () => {
         <>
             <div className="main-ud">
                 <h1 className="ud-title">
-                    Welcome <span className="text-ud-title">{user?.username}</span>!
+                    Welcome <span className="text-ud-title">{user?.username?.toUpperCase()}</span>!
                 </h1>
 
                 <div className="ud-content">

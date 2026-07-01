@@ -19,7 +19,7 @@ orderRouter.post("/", authMiddleware,validateRequest(placeOrderSchema), placeOrd
 orderRouter.get("/", authMiddleware, getMyOrders);
 orderRouter.get("/all", authMiddleware, roleMiddleware("admin", "mod"), getAllOrders); 
 orderRouter.get("/:orderId", authMiddleware, getOrderById);
-orderRouter.put("/:orderId/cancel", authMiddleware, cancelOrder);
+orderRouter.delete("/:orderId/cancel", authMiddleware, cancelOrder);
 orderRouter.put("/:orderId/status", authMiddleware, roleMiddleware("admin", "mod"), updateOrderStatus);
 
 export default orderRouter;
