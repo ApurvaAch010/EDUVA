@@ -13,6 +13,7 @@ import {
   faUsers,
   faRightFromBracket,
   faUserSecret,
+  faComments,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import logo from "../assets/logo.jpeg";
@@ -41,6 +42,7 @@ export const AdminLayout = () => {
     { to: "/admin/orders", label: "Orders", icon: faShoppingBag },
     { to: "/admin/banners", label: "Banners", icon: faImage },
     { to: "/admin/users", label: "Users", icon: faUsers },
+    { to: "/admin/chat", label: "Support Chat", icon: faComments },
   ];
 
   return (

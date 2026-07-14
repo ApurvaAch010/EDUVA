@@ -10,6 +10,7 @@ import {
   faGauge,
   faRightFromBracket,
   faUserSecret,
+  faComments,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import logo from "../assets/logo.jpeg";
@@ -45,6 +46,7 @@ export const UserLayout = () => {
     { to: "/user", label: "User Dashboard", icon: faGauge, end: true },
     { to: "/user/cart", label: "My Cart", icon: faCartShopping },
     { to: "/user/orders", label: "My Orders", icon: faBoxOpen },
+    { to: "/user/chat", label: "Support Chat", icon: faComments },
   ];
 
   return (

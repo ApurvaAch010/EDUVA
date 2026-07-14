@@ -2,7 +2,7 @@ import "./navbar.css"
 import logo from "../../assets/logo.jpeg"
 import { useNavigate } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart, faBarsStaggered, faXmark, faUser, faRightFromBracket, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faShoppingCart, faBarsStaggered, faXmark, faUser,faUserSecret, faRightFromBracket, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "../../store/authSlice";

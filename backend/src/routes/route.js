@@ -6,6 +6,7 @@ import categoryRouter from "../modules/categories/category.router.js";
 import bannerRouter from "../modules/banner/banner.router.js";
 import cartRouter from "../modules/cart/cart.router.js";
 import orderRouter from "../modules/order/order.router.js";
+import chatRouter from "../modules/chat/chat.router.js";
 
 const mainRouter = express.Router();
 
@@ -17,6 +18,7 @@ mainRouter.use("/categories",categoryRouter);
 mainRouter.use("/products",productRouter);
 mainRouter.use("/cart",cartRouter);
 mainRouter.use("/orders",orderRouter);
+mainRouter.use("/chat",chatRouter);
 
 
 export default mainRouter;

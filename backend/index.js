@@ -2,9 +2,11 @@ import "dotenv/config";
 import http from "http";
 import app from "./src/config/express.config.js";
 import { testDbConnection } from "./src/config/db.config.js";
+import { setupSocket } from "./src/modules/chat/chat.socket.js";
 
 const PORT = process.env.PORT || 8080;
 const server = http.createServer(app);
+setupSocket(server);
 
 server.listen(PORT, "127.0.0.1", async (err) => {
   if (!err) {

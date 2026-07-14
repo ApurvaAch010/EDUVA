@@ -13,7 +13,7 @@ import { DashboardPage } from "../pages/Admin/DashboardPage"
 import { AdminProductsPage } from "../pages/Admin/products/ProductsPage"
 import { CategoriesPage } from "../pages/Admin/categories/CategoriesPage"
 import { BannersPage } from "../pages/Admin/bannerPage/BannerPage"
-import { UsersPage } from "../pages/Admin/User/Userspage"
+import { UsersPage } from "../pages/Admin/admin-userpage/Userspage"
 import { OrdersAdminPage } from "../pages/Admin/orders/OrderAdminPage"
 import { UserDashboardPage } from "../pages/User/UserDashboardPage"
 import { UserLayout } from "../layouts/UserLayout"
@@ -21,6 +21,8 @@ import { CartPage } from "../pages/Cart/CartPage"
 import { OrdersPage } from "../pages/Orders/OrderPage"
 import { ProductsPage } from "../pages/Products/ProductsPage"
 import { CheckoutPage } from "../pages/Checkout/CheckoutPage"
+import { AdminChatPage } from "../pages/Admin/chat/AdminChatPage"
+import { UserChatPage } from "../pages/User/chat/UserChatPage"
 
 const ErrorComponent = () => {
     return (
@@ -97,6 +99,7 @@ export const RouterComponent = () => {
                         <Route path="banners" element={<BannersPage />} />
                         <Route path="users" element={<UsersPage />} />
                         <Route path="orders" element={<OrdersAdminPage />} />
+                        <Route path="chat" element={<AdminChatPage />} />
                     </Route>
                     <Route path="/user" element={
                         <ProtectedRoute allowedRoles={["user", "admin", "mod"]}>
@@ -106,6 +109,7 @@ export const RouterComponent = () => {
                         <Route index element={<UserDashboardPage />} />
                         <Route path="cart" element={<CartPage />} />
                         <Route path="orders" element={<OrdersPage />} />
+                        <Route path="chat" element={<UserChatPage />} />
 
 
                     </Route>
