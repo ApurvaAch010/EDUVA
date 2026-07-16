@@ -3,11 +3,18 @@ import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { getAllConversations, getMessages } from "../../../services/chat.service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faUserCircle, faUserSecret } from "@fortawesome/free-solid-svg-icons";
 import "../../User/chat/UserChatPage.css"
 import "./AdminChatPage.css";
 
 export const AdminChatPage = () => {
+    const BASE_URL = import.meta.env.VITE_API_URL?.replace("/api", "") ?? "";
+
+    const imgSrc = (path) => {
+        if (!path) return null;
+        if (path.startsWith("http")) return path;
+        return `${BASE_URL}/${path.replace(/^\//, "")}`;
+    };
     const { user } = useSelector((state) => state.auth);
     const [socket, setSocket] = useState(null);
     const [conversations, setConversations] = useState([]);
@@ -25,6 +32,7 @@ export const AdminChatPage = () => {
         const fetchConversations = async () => {
             try {
                 const res = await getAllConversations();
+                console.log(res)
                 if (res.success) {
                     setConversations(res.data);
                 }
@@ -67,7 +75,7 @@ export const AdminChatPage = () => {
                 }
                 return prev;
             });
-            
+
             // If this message belongs to the currently active conversation, it will be handled by 'receive_message' event
         });
 
@@ -82,10 +90,10 @@ export const AdminChatPage = () => {
         if (activeConversation) {
             socket?.emit("leave_room", { conversationId: activeConversation.conversation_id });
         }
-        
+
         setActiveConversation(conv);
         setMessages([]);
-        
+
         try {
             const res = await getMessages(conv.conversation_id);
             if (res.success) {
@@ -136,7 +144,7 @@ export const AdminChatPage = () => {
     return (
         <div className="admin-chat-container">
             <h1 className="admin-chat-title">Customer Support</h1>
-            
+
             <div className="admin-chat-box">
                 {/* Conversations List (Sidebar) */}
                 <div className="admin-chat-sidebar">
@@ -148,25 +156,30 @@ export const AdminChatPage = () => {
                             <div className="admin-chat-empty-list">No active conversations.</div>
                         ) : (
                             conversations.map((conv) => (
-                                <div 
+                                <div
                                     key={conv.conversation_id}
                                     onClick={() => handleSelectConversation(conv)}
-                                    className={`admin-chat-conv-item ${
-                                        activeConversation?.conversation_id === conv.conversation_id ? "active" : ""
-                                    }`}
+                                    className={`admin-chat-conv-item ${activeConversation?.conversation_id === conv.conversation_id ? "active" : ""
+                                        }`}
                                 >
                                     <div className="admin-chat-avatar">
-                                        {conv.customer_pic ? (
-                                            <img src={conv.customer_pic} alt="" />
+                                        {imgSrc(conv?.customer_pic) ? (
+                                            <img
+                                                src={imgSrc(conv.customer_pic)}
+                                                alt="profile"
+                                                className="profile-img"
+                                            />
                                         ) : (
-                                            <FontAwesomeIcon icon={faUserCircle} />
+                                            <div className="profile-avatar-fallback">
+                                                <FontAwesomeIcon icon={faUserSecret} />
+                                            </div>
                                         )}
                                     </div>
                                     <div className="admin-chat-conv-info">
                                         <div className="admin-chat-conv-header">
                                             <h3 className="admin-chat-conv-name">{conv.customer_name || 'Unknown User'}</h3>
                                             <span className="admin-chat-conv-time">
-                                                {conv.last_message_time ? new Date(conv.last_message_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ""}
+                                                {conv.last_message_time ? new Date(conv.last_message_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
                                             </span>
                                         </div>
                                         <p className="admin-chat-conv-preview">
@@ -212,7 +225,7 @@ export const AdminChatPage = () => {
                                                 <div className={`chat-bubble ${isMe ? "me" : "them"}`}>
                                                     <div className="chat-bubble-text">{msg.message_text}</div>
                                                     <div className="chat-bubble-time">
-                                                        {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </div>
                                                 </div>
                                             </div>
@@ -232,7 +245,7 @@ export const AdminChatPage = () => {
                                         placeholder="Type your message..."
                                         className="user-chat-input"
                                     />
-                                    <button 
+                                    <button
                                         type="submit"
                                         disabled={!newMessage.trim()}
                                         className="user-chat-submit"
