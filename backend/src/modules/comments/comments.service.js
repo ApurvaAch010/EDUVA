@@ -9,7 +9,7 @@ export const addCommentService = async (userId, pid, comment, imageUrl) => {
         let imageResult = null;
         if (imageUrl.length > 0) {
             const query2 = `INSERT INTO comment_images (comment_id, image_url) VALUES ?`;
-            const values = imageUrl.map(url => [commentResult.insertId, url]);
+            const values = imageUrl.map(url => [commentResult.insertId, url.replace(/\\/g, "/")]);
             const [imageInsertResult] = await dbPool.query(query2, [values]);
             imageResult = imageInsertResult;
         }
@@ -18,11 +18,11 @@ export const addCommentService = async (userId, pid, comment, imageUrl) => {
             commentId: commentResult.insertId,
             imageId: imageResult ? imageResult.insertId : null,
         };
-        return response
+        return response;
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};
 
 export const updateCommentService = async (cid, comment, imageUrl) => {
     try {
@@ -30,7 +30,7 @@ export const updateCommentService = async (cid, comment, imageUrl) => {
         let imageResult = null;
         if (imageUrl.length > 0) {
             const query2 = `INSERT INTO comment_images (comment_id, image_url) VALUES ?`;
-            const values = imageUrl.map(url => [cid, url]);
+            const values = imageUrl.map(url => [cid, url.replace(/\\/g, "/")]);
             const [imageInsertResult] = await dbPool.query(query2, [values]);
             imageResult = imageInsertResult;
         }
@@ -38,39 +38,42 @@ export const updateCommentService = async (cid, comment, imageUrl) => {
             commentId: cid,
             imageId: imageResult ? imageResult.insertId : null,
         };
-        return response
+        return response;
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};
 
 export const deleteCommentService = async (cid) => {
     try {
-        const query = `DELETE FROM comments WHERE id = ?`
-        const result = await dbPool.query(query, [cid])
-        return result
+        const query = `DELETE FROM comments WHERE id = ?`;
+        const result = await dbPool.query(query, [cid]);
+        return result;
     } catch (error) {
-        throw error
+        throw error;
     }
-}
+};
 
 export const getCommentsById = async (cid) => {
     try {
-     const[result]= await dbPool.execute("SELECT * from comments WHERE id=?", [cid])
-       if(result.length>0){
-        return true;
-       }
-       return false;
-    }
-    catch (error) {
+        const [result] = await dbPool.execute("SELECT * FROM comments WHERE id=?", [cid]);
+        if (result.length > 0) {
+            return result[0];
+        }
+        return null;
+    } catch (error) {
         throw error;
     }
-}
+};
 
 export const getProductCommentsService = async (pid) => {
     try {
         const [comments] = await dbPool.query(
-            `SELECT * FROM comments WHERE product_id = ?`,
+            `SELECT c.*, u.username, u.email, u.profile_pic 
+             FROM comments c 
+             LEFT JOIN users u ON c.user_id = u.id 
+             WHERE c.product_id = ? 
+             ORDER BY c.id DESC`,
             [pid]
         );
 
@@ -86,8 +89,14 @@ export const getProductCommentsService = async (pid) => {
         );
 
         const response = comments.map(comment => ({
-            data: comment,
-            c_images: images.filter(img => img.comment_id === comment.id),
+            ...comment,
+            username: comment.username || "User",
+            c_images: images
+                .filter(img => img.comment_id === comment.id)
+                .map(img => ({
+                    ...img,
+                    image_url: img.image_url ? img.image_url.replace(/\\/g, "/") : ""
+                })),
         }));
 
         return response;
@@ -95,6 +104,7 @@ export const getProductCommentsService = async (pid) => {
         throw error;
     }
 };
+
 export const deleteCommentImage = async (cid) => {
     try {
         const [existing] = await dbPool.query(
@@ -112,8 +122,6 @@ export const deleteCommentImage = async (cid) => {
             "DELETE FROM comment_images WHERE comment_id = ?",
             [cid]
         );
-
-        if (result.affectedRows === 0) throw new Error("Failed to delete comment image");
 
         return true;
     } catch (error) {

@@ -3,17 +3,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faCartPlus, faChevronLeft, faComment } from "@fortawesome/free-solid-svg-icons";
 import { getAllProducts } from "../../services/products.service";
 import { addToCartApi } from "../../services/cart.service";
 import { addToCart } from "../../store/cartSlice";
 import { Spinner } from "../spinner/spinner.jsx";
+import { ProductCommentsModal } from "../comments/ProductCommentsModal.jsx";
 import "./products.css";
 
 export const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -115,13 +117,36 @@ export const Products = () => {
                 </p>
               </div>
               
-              <button
-                className="add-to-cart-btn detail-add-btn"
-                onClick={() => handleAddToCart(selectedProduct)}
-                disabled={selectedProduct.stock <= 0}
-              >
-                <FontAwesomeIcon icon={faCartPlus} /> {selectedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-              </button>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+                <button
+                  className="add-to-cart-btn detail-add-btn"
+                  onClick={() => handleAddToCart(selectedProduct)}
+                  disabled={selectedProduct.stock <= 0}
+                >
+                  <FontAwesomeIcon icon={faCartPlus} /> {selectedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                </button>
+
+                <button
+                  className="product-comments-trigger-btn"
+                  onClick={() => setShowCommentsModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.25rem',
+                    borderRadius: '8px',
+                    backgroundColor: '#eff6ff',
+                    color: '#2563eb',
+                    border: '1px solid #bfdbfe',
+                    fontWeight: '600',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faComment} /> Comments
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -174,6 +199,15 @@ export const Products = () => {
           ))}
         </div>
       </div>
+      )}
+
+      {selectedProduct && (
+        <ProductCommentsModal
+          productId={selectedProduct.product_id || selectedProduct.id}
+          productName={selectedProduct.name}
+          isOpen={showCommentsModal}
+          onClose={() => setShowCommentsModal(false)}
+        />
       )}
     </div>
   );

@@ -6,11 +6,11 @@ import { addCommentSchema } from "./comments.validator.js";
 import uploader from "../../middlewares/uploader.middleware.js";
 
 
-const commentRouter=express.Router()
+const commentRouter = express.Router();
 
-commentRouter.post("/add-comment/:pid",authMiddleware,validateRequest(addCommentSchema),uploader.array('comment_images',5),addComment);
-commentRouter.put("/update-comment/:cid",authMiddleware,validateRequest(addCommentSchema),uploader.array('comment_images',5),updateComment);
-commentRouter.delete("/delete-comment/:cid",authMiddleware,deleteComment);
-commentRouter.get("/get-product-comments/:pid",authMiddleware,getProductComments);
+commentRouter.post("/add-comment/:pid", authMiddleware, uploader.array('comment_images', 5), validateRequest(addCommentSchema), addComment);
+commentRouter.put("/update-comment/:cid", authMiddleware, uploader.array('comment_images', 5), validateRequest(addCommentSchema), updateComment);
+commentRouter.delete("/delete-comment/:cid", authMiddleware, deleteComment);
+commentRouter.get("/get-product-comments/:pid", getProductComments);
 
-export default commentRouter
+export default commentRouter;
