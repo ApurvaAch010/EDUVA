@@ -5,17 +5,22 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-
 app.use(cors({
   origin: "http://localhost:5173",
-  credentials:true  
+  credentials: true  
 }));
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/public", express.static("./public"));
-
+// Optimized static asset caching for media & uploaded images
+app.use("/public", express.static("./public", {
+  maxAge: "7d",
+  etag: true,
+  setHeaders: (res, path) => {
+    res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+  }
+}));
 
 // Root route
 app.get("/", (req, res) => {
@@ -24,7 +29,6 @@ app.get("/", (req, res) => {
     message: "Welcome to Eduva API backend"
   });
 });
-
 
 app.use("/", mainRouter);
 

@@ -1,5 +1,6 @@
 import { registerUser, loginUser, revokeRefreshToken, dashboardService, forgetPasswordService, resetPasswordService } from "./auth.service.js";
 import { sendOtpEmail } from "../../config/mailer.config.js";
+import { setSessionToken, deleteSessionToken } from "../../config/redis.config.js";
 import fs from "fs";
 
 export const register = async (req, res) => {
@@ -39,6 +40,11 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const result = await loginUser(email, password);
+
+    // Populate Redis/In-Memory session cache
+    if (result?.user?.id && result?.activeToken) {
+      await setSessionToken(result.user.id, result.activeToken);
+    }
    
      res.cookie("token", result.activeToken, {
       httpOnly: true,
@@ -166,6 +172,10 @@ export const logout = async (req, res) => {
         message: "Unauthorized"
       });
     }
+
+    // Invalidate Redis/In-Memory session cache
+    await deleteSessionToken(req.user.id);
+
     //clearing the cookie
        res.clearCookie("token", {
       httpOnly: true,

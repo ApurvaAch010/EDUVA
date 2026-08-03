@@ -5,7 +5,7 @@ import { placeOrderApi } from "../../services/order.service";
 import { Spinner } from "../../components/spinner/spinner";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle, faShieldAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faShieldAlt, faMoneyBillWave, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import "./CheckoutPage.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL?.replace("/api", "") ?? "";
@@ -26,6 +26,7 @@ export const CheckoutPage = () => {
     shipping_address: "",
     primary_phone: "",
     secondary_phone: "",
+    payment_method: "COD",
   });
 
   const navigate = useNavigate();
@@ -54,10 +55,29 @@ export const CheckoutPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePhoneChange = (e) => {
+    const { name, value } = e.target;
+    // Allow only numeric digits up to 10 characters
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+    setFormData((prev) => ({ ...prev, [name]: digitsOnly }));
+  };
+
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    if (!formData.shipping_address || !formData.primary_phone) {
-      toast.error("Please fill all required fields.");
+
+    if (!formData.shipping_address.trim()) {
+      toast.error("Please enter a valid delivery address.");
+      return;
+    }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.primary_phone)) {
+      toast.error("Primary phone number must be exactly 10 digits.");
+      return;
+    }
+
+    if (formData.secondary_phone && !phoneRegex.test(formData.secondary_phone)) {
+      toast.error("Secondary phone number must be exactly 10 digits.");
       return;
     }
 
@@ -88,7 +108,7 @@ export const CheckoutPage = () => {
     <div className="checkout-page">
       <div className="checkout-container">
         <div className="checkout-left">
-          <h2>Shipping Information</h2>
+          <h2>Shipping & Payment Information</h2>
           <p className="checkout-subtitle">Where should we deliver your order?</p>
 
           <form className="checkout-form" onSubmit={handlePlaceOrder}>
@@ -107,16 +127,19 @@ export const CheckoutPage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="primary_phone">Primary Phone *</label>
+                <label htmlFor="primary_phone">Primary Phone (10 digits) *</label>
                 <input
                   type="text"
                   id="primary_phone"
                   name="primary_phone"
                   placeholder="e.g. 9812345678"
                   value={formData.primary_phone}
-                  onChange={handleChange}
+                  onChange={handlePhoneChange}
+                  maxLength={10}
+                  inputMode="numeric"
                   required
                 />
+                <span className="field-hint">{formData.primary_phone.length}/10 digits</span>
               </div>
 
               <div className="form-group">
@@ -127,8 +150,43 @@ export const CheckoutPage = () => {
                   name="secondary_phone"
                   placeholder="e.g. 9800000000"
                   value={formData.secondary_phone}
-                  onChange={handleChange}
+                  onChange={handlePhoneChange}
+                  maxLength={10}
+                  inputMode="numeric"
                 />
+                <span className="field-hint">{formData.secondary_phone.length}/10 digits</span>
+              </div>
+            </div>
+
+            {/* Mandatory Payment Method Section */}
+            <div className="payment-section">
+              <label className="payment-label">Payment Method *</label>
+              
+              <div className="payment-option selected">
+                <div className="payment-option-header">
+                  <input
+                    type="radio"
+                    id="payment_cod"
+                    name="payment_method"
+                    value="COD"
+                    checked={formData.payment_method === "COD"}
+                    onChange={handleChange}
+                    required
+                  />
+                  <label htmlFor="payment_cod" className="payment-option-title">
+                    <FontAwesomeIcon icon={faMoneyBillWave} className="cod-icon" />
+                    Cash on Delivery (COD)
+                  </label>
+                  <span className="badge-mandatory">Compulsory</span>
+                </div>
+                <p className="payment-option-desc">
+                  Pay with cash upon delivery of your items to your specified address.
+                </p>
+              </div>
+
+              <div className="payment-note">
+                <FontAwesomeIcon icon={faInfoCircle} />
+                <span>Online payment gateway is currently unavailable. Cash on Delivery is mandatory.</span>
               </div>
             </div>
 
@@ -149,7 +207,7 @@ export const CheckoutPage = () => {
                 </>
               ) : (
                 <>
-                  <FontAwesomeIcon icon={faCheckCircle} /> Place Order
+                  <FontAwesomeIcon icon={faCheckCircle} /> Place Order 
                 </>
               )}
             </button>
@@ -194,8 +252,11 @@ export const CheckoutPage = () => {
               </div>
               <div className="summary-divider" />
               <div className="summary-total-row">
-                <span>Total</span>
+                <span>Total Amount Due</span>
                 <span>{currency(cart.total)}</span>
+              </div>
+              <div className="summary-payment-badge">
+                Payment: <strong>Cash on Delivery</strong>
               </div>
             </div>
           </div>

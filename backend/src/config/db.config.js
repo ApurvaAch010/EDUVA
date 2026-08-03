@@ -10,7 +10,7 @@ const dbPool = mysql.createPool({
   database: process.env.DB_NAME || "eduva",
   port: parseInt(process.env.DB_PORT || "3306", 10),
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit:30,
   queueLimit: 0
 });
 

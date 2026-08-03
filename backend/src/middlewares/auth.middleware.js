@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import dbPool from "../config/db.config.js";
+import { getSessionToken, setSessionToken } from "../config/redis.config.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -22,27 +23,43 @@ const authMiddleware = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_ACTIVE_SECRET);
 
-    try {
-      const [users] = await dbPool.execute(
-        "SELECT active_tokens FROM users WHERE id = ?",
-        [decoded.id]
-      );
+    // 1. Check Redis / Memory Session Cache (0ms DB load)
+    let cachedActiveToken = await getSessionToken(decoded.id);
 
-      if (users.length === 0 || users[0].active_tokens !== token) {
+    if (cachedActiveToken) {
+      if (cachedActiveToken !== token) {
         return res.status(401).json({
           success: false,
           message: "Session has expired or you have logged out. Please log in again.",
         });
       }
-    } catch (dbError) {
-      if (
-        dbError.code !== "ER_NO_SUCH_TABLE" &&
-        dbError.code !== "ECONNREFUSED" &&
-        dbError.code !== "ENOTFOUND"
-      ) {
-        throw dbError;
+    } else {
+      // 2. Cache miss fallback: query DB once and populate cache
+      try {
+        const [users] = await dbPool.execute(
+          "SELECT active_tokens FROM users WHERE id = ?",
+          [decoded.id]
+        );
+
+        if (users.length === 0 || users[0].active_tokens !== token) {
+          return res.status(401).json({
+            success: false,
+            message: "Session has expired or you have logged out. Please log in again.",
+          });
+        }
+
+        // Populate session cache for fast future lookups
+        await setSessionToken(decoded.id, token);
+      } catch (dbError) {
+        if (
+          dbError.code !== "ER_NO_SUCH_TABLE" &&
+          dbError.code !== "ECONNREFUSED" &&
+          dbError.code !== "ENOTFOUND"
+        ) {
+          throw dbError;
+        }
+        console.log("Database offline - bypassing session validation.");
       }
-      console.log("Database offline - bypassing session validation.");
     }
 
     req.user = decoded;

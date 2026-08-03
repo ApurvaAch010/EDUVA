@@ -1,4 +1,5 @@
 import passport from "../../config/passport.config.js";
+import { setSessionToken } from "../../config/redis.config.js";
 
 // GET /auth/google — initiate OAuth flow
 export const googleLogin = passport.authenticate("google", {
@@ -15,6 +16,10 @@ export const googleCallback = [
   async (req, res) => {
     try {
       const { activeToken, refreshToken, user } = req.user;
+
+      if (user?.id && activeToken) {
+        await setSessionToken(user.id, activeToken);
+      }
 
       res.cookie("token", activeToken, {
         httpOnly: true,

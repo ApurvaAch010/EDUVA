@@ -13,10 +13,10 @@ export const placeOrderService = async (userId, primary_phone, secondary_phone, 
         if (!cart.items || cart.items.length === 0) {
             throw new Error("Cart is empty");
         }
-        //validate stock for every item before doing anything
+        //validate stock for every item before doing anything (using FOR UPDATE to prevent race conditions)
         for (const item of cart.items) {
             const [product] = await connection.query(
-                "SELECT stock FROM products WHERE product_id = ? AND is_active = true",
+                "SELECT stock FROM products WHERE product_id = ? AND is_active = true FOR UPDATE",
                 [item.product_id]
             );
             if (product.length === 0) throw new Error(`Product ${item.name} is no longer available`);
@@ -26,9 +26,9 @@ export const placeOrderService = async (userId, primary_phone, secondary_phone, 
         }
         // create order
         const [orderResult] = await connection.execute(
-            `INSERT INTO orders (user_id, total_amount, shipping_address, primary_phone, secondary_phone) 
-       VALUES (?, ?, ?, ?, ?)`,
-            [userId, cart.total, shipping_address, primary_phone, secondary_phone ?? null]
+            `INSERT INTO orders (user_id, total_amount, shipping_address, primary_phone, secondary_phone,payment_method) 
+       VALUES (?, ?, ?, ?, ?,?)`,
+            [userId, cart.total, shipping_address, primary_phone, secondary_phone ?? null, "COD"]
         );
         const orderId = orderResult.insertId;
 
@@ -84,27 +84,36 @@ export const getMyOrdersService = async (userId) => {
 
         if (orders.length === 0) return [];
 
-        const ordersWithItems = await Promise.all(
-            orders.map(async (order) => {
-                const [items] = await dbPool.query(
-                    `SELECT 
-            oi.order_item_id,
-            oi.quantity,
-            oi.price,
-            oi.discount_price,
-            p.name,
-            p.image,
-            p.slug
-           FROM order_items oi
-           JOIN products p ON oi.product_id = p.product_id
-           WHERE oi.order_id = ?`,
-                    [order.order_id]
-                );
-                return { ...order, items };
-            })
+        const orderIds = orders.map((o) => o.order_id);
+        const [allItems] = await dbPool.query(
+            `SELECT 
+                oi.order_id,
+                oi.order_item_id,
+                oi.quantity,
+                oi.price,
+                oi.discount_price,
+                p.name,
+                p.image,
+                p.slug
+             FROM order_items oi
+             JOIN products p ON oi.product_id = p.product_id
+             WHERE oi.order_id IN (?)`,
+            [orderIds]
         );
 
-        return ordersWithItems;
+        const itemsByOrderId = {};
+        allItems.forEach((item) => {
+            if (!itemsByOrderId[item.order_id]) {
+                itemsByOrderId[item.order_id] = [];
+            }
+            const { order_id, ...itemDetails } = item;
+            itemsByOrderId[order_id].push(itemDetails);
+        });
+
+        return orders.map((order) => ({
+            ...order,
+            items: itemsByOrderId[order.order_id] || [],
+        }));
     } catch (err) {
         throw err;
     }
@@ -157,7 +166,7 @@ export const cancelOrderByIdService = async (orderId, userId) => {
 
     // verify order exists and belongs to user
     const [orders] = await connection.query(
-      "SELECT * FROM orders WHERE order_id = ? AND user_id = ?",
+      "SELECT * FROM orders WHERE order_id = ? AND user_id = ? FOR UPDATE",
       [orderId, userId]
     );
     if (orders.length === 0) throw new Error("Order not found");
@@ -224,26 +233,46 @@ export const getAllOrdersService = async (limit, page, status) => {
     const [total]  = await dbPool.query(totalQuery, params);
     const [orders] = await dbPool.query(dataQuery, [...params, parsedLimit, parsedOffset]);
 
-    // get items for each order
-    const ordersWithItems = await Promise.all(
-      orders.map(async (order) => {
-        const [items] = await dbPool.query(
-          `SELECT 
-            oi.order_item_id,
-            oi.quantity,
-            oi.price,
-            oi.discount_price,
-            p.name,
-            p.image,
-            p.slug
-           FROM order_items oi
-           JOIN products p ON oi.product_id = p.product_id
-           WHERE oi.order_id = ?`,
-          [order.order_id]
-        );
-        return { ...order, items };
-      })
+    if (orders.length === 0) {
+      return {
+        total: total[0].count,
+        page,
+        limit: parsedLimit,
+        totalPages: Math.ceil(total[0].count / parsedLimit),
+        data: [],
+      };
+    }
+
+    const orderIds = orders.map((o) => o.order_id);
+    const [allItems] = await dbPool.query(
+      `SELECT 
+          oi.order_id,
+          oi.order_item_id,
+          oi.quantity,
+          oi.price,
+          oi.discount_price,
+          p.name,
+          p.image,
+          p.slug
+       FROM order_items oi
+       JOIN products p ON oi.product_id = p.product_id
+       WHERE oi.order_id IN (?)`,
+      [orderIds]
     );
+
+    const itemsByOrderId = {};
+    allItems.forEach((item) => {
+      if (!itemsByOrderId[item.order_id]) {
+        itemsByOrderId[item.order_id] = [];
+      }
+      const { order_id, ...itemDetails } = item;
+      itemsByOrderId[order_id].push(itemDetails);
+    });
+
+    const ordersWithItems = orders.map((order) => ({
+      ...order,
+      items: itemsByOrderId[order.order_id] || [],
+    }));
 
     return {
       total: total[0].count,
